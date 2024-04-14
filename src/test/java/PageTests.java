@@ -1,10 +1,19 @@
 import com.microsoft.playwright.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.annotations.*;
 
-public class PageTests {
+import java.io.File;
+import java.lang.reflect.Method;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.OptionalInt;
+
+public class PageTests <T extends Number>{
     Browser browser;
     BrowserContext context;
     Page page;
+    Logger logger = LogManager.getRootLogger();
     String body = "{" +
                         "\"result\":{" +
                             "\"blocks\":{" +
@@ -35,6 +44,7 @@ public class PageTests {
     public void launchBrowser() {
         browser = BrowserSingleton.getBrowser();
         context = ContextUtil.getBrowserContext(browser);
+        directoryСleanup();
     }
     /**
      * Closes browser instance after all test done in class
@@ -46,14 +56,46 @@ public class PageTests {
             browser = null;
         }
     }
-    @Test
-    public void test1() throws InterruptedException {
-        page = context.newPage();
 
-        page.route("https://www.avito.ru/web/1/charity/ecoImpact/init", route -> route.fulfill(new Route.FulfillOptions()
-                .setStatus(200)
-                .setBody(body.replace("\"co2\":0","\"co2\":7").replace("\"energy\":0","\"energy\":3").replace("\"water\":0", "\"water\":999"))));
-        page.navigate("https://www.avito.ru/avito-care/eco-impact");
-        Thread.sleep(3000);
+    public String bodyConverter(Number number){
+        return body.replaceAll("0", number.toString());
+    }
+
+    public void directoryСleanup(){
+        File directory = new File("/output");
+        File[] files = directory.listFiles();
+        OptionalInt filesCounter = OptionalInt.of(files.length);
+        if (files != null) {
+            for (File file : files) {
+                if (!file.isDirectory()) {
+                    file.delete();
+                }
+            }
+            logger.info(String.format("Directory cleaned! %s files had been delete successfully"), filesCounter.toString());
+        } else {
+            logger.info("Directory is empty!");
+        }
+    }
+
+    @Test
+    public void test(Method method) throws InterruptedException {
+        List<Number> data = List.of(0, 1, 99, 100, 101, 999 , 1_000, 1_501, 9_999, 11_700, 12_601,
+                99_999, 100_000, 101_001, 999_999, 1_230_000, 1_670_001, 9_999_999, 16_452_000, 17_777_001,
+                99_999_999, 111_111_000, 155_558_001, 9_999_999_999L, 10_000_000_000L, 16_606_060_001L,
+                99_999_999_999L, 180_180_180_000L, 777_666_555_001L, 999_999_999_999L, 1_000_000_000_000L, 1.5, 0.3);
+        int counter = 1;
+        page = context.newPage();
+        for (Number number: data) {
+            page.route("https://www.avito.ru/web/1/charity/ecoImpact/init", route -> route.fulfill(new Route.FulfillOptions()
+                    .setStatus(200)
+                    .setBody(bodyConverter(number))));
+            page.navigate("https://www.avito.ru/avito-care/eco-impact");
+
+
+            for (int j = 1; j <= 3; j++) {
+                page.locator("xpath=//div[@class='desktop-impact-item-eeQO3']" + "[" + j * 2 + "]").screenshot(new Locator.ScreenshotOptions().setPath(Paths.get("output/" + "test" + counter + "_screenshot_" + j + ".png")));
+            }
+            counter++;
+        }
     }
 }

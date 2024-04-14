@@ -13,11 +13,11 @@ public class BrowserSingleton {
      * @return Singleton Browser instance
      */
     public static Browser getBrowser() {
-
+        boolean headless = System.getProperty("headless") == null;
         if (null == browser) {
             if (System.getProperty("browser") == null){
                 return browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions()
-                        .setHeadless(false)
+                        .setHeadless(headless)
                         .setChannel("chrome")
                         .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
             } else {
@@ -26,26 +26,26 @@ public class BrowserSingleton {
                             .create()
                             .firefox()
                             .launch(new BrowserType.LaunchOptions()
-                                    .setHeadless(false)
+                                    .setHeadless(headless)
                                     .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
                     case "safari" -> browser = Playwright
                             .create()
                             .webkit()
                             .launch(new BrowserType.LaunchOptions()
-                                    .setHeadless(false)
+                                    .setHeadless(headless)
                                     .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
                     case "edge" -> browser = Playwright
                             .create()
                             .chromium()
                             .launch(new BrowserType.LaunchOptions()
-                                    .setHeadless(false)
+                                    .setHeadless(headless)
                                     .setChannel("msedge")
                                     .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
                     default -> browser = Playwright
                             .create()
                             .chromium()
                             .launch(new BrowserType.LaunchOptions()
-                                    .setHeadless(false)
+                                    .setHeadless(headless)
                                     .setChannel("chrome")
                                     .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
                 }
