@@ -68,15 +68,6 @@
     </properties>
 
     <dependencies>
-
-            <dependency>
-                <groupId>groupId</groupId>
-                <artifactId>artifactId</artifactId>
-                <type>test-jar</type>
-                <version>version</version>
-                <classifier>tests</classifier>
-                <scope>test</scope>
-            </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
