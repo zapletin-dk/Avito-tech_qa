@@ -18,7 +18,7 @@ public class BrowserSingleton {
             if (System.getProperty("browser") == null){
                 return browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions()
                         .setHeadless(headless)
-                        .setChannel("chrome")
+                        .setChannel("")
                         .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
             } else {
                 switch (System.getProperty("browser")) {
