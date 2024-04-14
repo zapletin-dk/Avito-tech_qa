@@ -1,28 +1,42 @@
 import com.microsoft.playwright.*;
 import org.testng.annotations.*;
 
-import java.util.Arrays;
-
-
 public class PageTests {
     Browser browser;
-    BrowserContext context;
     Page page;
-    String body = "{\"result\":{\"blocks\":{\"personalImpact\":{\"data\":{\"co2\":0,\"energy\":0,\"materials\":0,\"pineYears\":0,\"water\":0}}},\"isAuthorized\":false},\"status\":\"ok\"}";
-
+    String body = "{" +
+                        "\"result\":{" +
+                            "\"blocks\":{" +
+                                "\"personalImpact\":{" +
+                                    "\"data\":{" +
+                                        "\"co2\":0," +
+                                        "\"energy\":0," +
+                                        "\"materials\":0," +
+                                        "\"pineYears\":0," +
+                                        "\"water\":0" +
+                                    "}" +
+                                "}" +
+                            "}," +
+                            "\"isAuthorized\":false" +
+                        "}," +
+                        "\"status\":\"ok\"" +
+                    "}";
+    /**
+     * Launching browser method via mvn with browser from system properties
+     *In case of debugging in IDE replace method body with
+     * browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions()
+     *                         .setHeadless(false)
+     *                         .setChannel("chrome")
+     *                         .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
+     *So you can run test via Run Test button
+     */
     @BeforeClass
     public void launchBrowser() {
-        browser = Playwright
-                .create()
-                .chromium()
-                .launch(new BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setChannel("chrome")
-                        .setArgs(Arrays.stream((new String[]{"--disable-service-worker"})).toList()));
-        //browser = BrowserSingleton.getBrowser();
-
+        browser = BrowserSingleton.getBrowser();
     }
-
+    /**
+     * Closes browser instance after all test done in class
+    */
     @AfterClass
     public void tearDown() {
         if (browser != null) {
@@ -30,23 +44,6 @@ public class PageTests {
             browser = null;
         }
     }
-
-//    @BeforeMethod
-//    public void createContextAndPage() {
-//        context = browser.newContext(new Browser.NewContextOptions().setViewportSize(1920,1080));
-//        context.tracing().start(new Tracing.StartOptions()
-//                .setScreenshots(true)
-//                .setSnapshots(true)
-//                .setSources(false));
-//        page = context.newPage();
-//    }
-
-//    @AfterMethod
-//    public void closeContext() {
-//        context.close();
-//    }
-
-
     @Test
     public void test1() throws InterruptedException {
         page = browser.newPage();
