@@ -1,7 +1,6 @@
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.options.ViewportSize;
-
 import java.awt.*;
 /**
  * Class create browser context instance with window size

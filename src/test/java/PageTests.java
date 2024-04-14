@@ -2,18 +2,17 @@ import com.microsoft.playwright.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.*;
-
 import java.io.File;
-import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.OptionalInt;
 
-public class PageTests <T extends Number>{
+public class PageTests {
     Browser browser;
     BrowserContext context;
     Page page;
-    Logger logger = LogManager.getRootLogger();
+    protected final Logger logger = LogManager.getRootLogger();
+    File directory = new File("output/");
+    File[] files = directory.listFiles();
     String body = "{" +
                         "\"result\":{" +
                             "\"blocks\":{" +
@@ -44,7 +43,14 @@ public class PageTests <T extends Number>{
     public void launchBrowser() {
         browser = BrowserSingleton.getBrowser();
         context = ContextUtil.getBrowserContext(browser);
-        directoryСleanup();
+
+    }
+    /**
+     * Delete all attachments for outputs dir before running tests
+     */
+    @BeforeClass
+    public void deleteAttachments(){
+        directoryCleanup();
     }
     /**
      * Closes browser instance after all test done in class
@@ -61,24 +67,23 @@ public class PageTests <T extends Number>{
         return body.replaceAll("0", number.toString());
     }
 
-    public void directoryСleanup(){
-        File directory = new File("/output");
-        File[] files = directory.listFiles();
-        OptionalInt filesCounter = OptionalInt.of(files.length);
+    public void directoryCleanup(){
+        int filesCounter;
         if (files != null) {
+            filesCounter = files.length;
             for (File file : files) {
                 if (!file.isDirectory()) {
                     file.delete();
                 }
             }
-            logger.info(String.format("Directory cleaned! %s files had been delete successfully"), filesCounter.toString());
+            logger.info(String.format("Directory cleaned! %s files had been delete successfully", filesCounter));
         } else {
             logger.info("Directory is empty!");
         }
     }
 
     @Test
-    public void test(Method method) throws InterruptedException {
+    public void test() {
         List<Number> data = List.of(0, 1, 99, 100, 101, 999 , 1_000, 1_501, 9_999, 11_700, 12_601,
                 99_999, 100_000, 101_001, 999_999, 1_230_000, 1_670_001, 9_999_999, 16_452_000, 17_777_001,
                 99_999_999, 111_111_000, 155_558_001, 9_999_999_999L, 10_000_000_000L, 16_606_060_001L,
@@ -97,5 +102,6 @@ public class PageTests <T extends Number>{
             }
             counter++;
         }
+        logger.info(String.format("Had been created %d attachments",files.length));
     }
 }
